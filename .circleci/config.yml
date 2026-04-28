@@ -1,0 +1,21 @@
+version: 2.1
+
+jobs:
+  terraform_plan:
+    docker:
+      - image: hashicorp/terraform:light
+    steps:
+      - checkout
+      - run:
+          name: Terraform Init
+          command: |
+            terraform init
+      - run:
+          name: Terraform Plan
+          command: |
+            terraform plan
+
+workflows:
+  infra_pipeline:
+    jobs:
+      - terraform_plan
