@@ -8,14 +8,29 @@ jobs:
       - checkout
       - run:
           name: Terraform Init
-          command: |
-            terraform init
+          command: terraform init
       - run:
           name: Terraform Plan
-          command: |
-            terraform plan
+          command: terraform plan
+
+  terraform_apply:
+    docker:
+      - image: hashicorp/terraform:light
+    steps:
+      - checkout
+      - run:
+          name: Terraform Init
+          command: terraform init
+      - run:
+          name: Terraform Apply
+          command: terraform apply -auto-approve
 
 workflows:
   infra_pipeline:
     jobs:
       - terraform_plan
+      - hold:
+          type: approval
+          requires: [terraform_plan]
+      - terraform_apply:
+          requires: [hold]
