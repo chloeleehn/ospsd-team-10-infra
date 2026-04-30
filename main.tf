@@ -1,13 +1,11 @@
 terraform {
   required_version = ">= 1.0.0"
-
   required_providers {
     aws = {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
   }
-
   backend "s3" {
     bucket = "ospsd-terraform-state"
     key    = "apprunner/terraform.tfstate"
@@ -21,7 +19,6 @@ provider "aws" {
 
 resource "aws_iam_role" "apprunner_ecr_role" {
   name = "apprunner-ecr-role"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -41,7 +38,6 @@ resource "aws_iam_role_policy_attachment" "apprunner_ecr_policy" {
 
 resource "aws_iam_role" "apprunner_instance_role" {
   name = "apprunner-instance-role"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -64,17 +60,17 @@ resource "aws_apprunner_service" "app" {
 
   instance_configuration {
     instance_role_arn = aws_iam_role.apprunner_instance_role.arn
+    cpu               = "1024"
+    memory            = "2048"
   }
 
   source_configuration {
     authentication_configuration {
       access_role_arn = aws_iam_role.apprunner_ecr_role.arn
     }
-
     image_repository {
       image_identifier      = var.image_url
       image_repository_type = "ECR"
-
       image_configuration {
         port = "8080"
         runtime_environment_variables = {
@@ -96,7 +92,6 @@ resource "aws_apprunner_service" "app" {
         }
       }
     }
-
     auto_deployments_enabled = true
   }
 }
